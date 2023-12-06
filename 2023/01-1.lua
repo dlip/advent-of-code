@@ -1016,6 +1016,6 @@ for line in input:gmatch("[^\r\n]+") do
       end
     end
   end
-  total = total + tonumber(tostring(first ) .. tostring(last))
+  total = total + tonumber(tostring(first) .. tostring(last))
 end
 print(total)
