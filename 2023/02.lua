@@ -116,20 +116,6 @@ Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
 Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
 ]]
 
-
-
-
-local function is_game_possible(game, bag)
-  for _, round in pairs(game) do
-    for type, count in pairs(bag) do
-      if round[type] and round[type] > count then
-        return false
-      end
-    end
-  end
-  return true
-end
-
 --[[
 -- Create this structure
 {
@@ -150,7 +136,7 @@ local games = {}
 for line in input:gmatch("[^\r\n]+") do
   local game_no = tonumber(line:match("Game (%d+)"))
   games[game_no] = {}
-  for round in line:match(".*: (.*)"):gsub('; ', ';'):gsub(', ', ','):gmatch("[^;]+") do
+  for round in line:match(".*: (.*)"):gsub("; ", ";"):gsub(", ", ","):gmatch("[^;]+") do
     local round_data = {}
     for draw in round:gmatch("[^,]+") do
       local count = tonumber(draw:match("(%d+).+"))
@@ -161,14 +147,59 @@ for line in input:gmatch("[^\r\n]+") do
   end
 end
 
-local possible_games = {}
-local total = 0
-for game_no, game in pairs(games) do
-  if is_game_possible(game, bag) then
-    table.insert(possible_games, game_no)
-    total = total + game_no
+-- Part 1
+local function part_one()
+  local function is_game_possible(game, bag)
+    for _, round in pairs(game) do
+      for type, count in pairs(bag) do
+        if round[type] and round[type] > count then
+          return false
+        end
+      end
+    end
+    return true
   end
+  local possible_games = {}
+  local total = 0
+  for game_no, game in pairs(games) do
+    if is_game_possible(game, bag) then
+      table.insert(possible_games, game_no)
+      total = total + game_no
+    end
+  end
+
+  vim.print(possible_games)
+  print(total)
 end
 
-vim.print(possible_games)
-print(total)
+-- part_one()
+
+-- Part 2
+local function part_two()
+  local function get_minimum_bag(game)
+    local minimum_bag = {
+      red = 0,
+      green = 0,
+      blue = 0,
+    }
+    for _, round in pairs(game) do
+      for type, count in pairs(minimum_bag) do
+        if round[type] and round[type] > count then
+          minimum_bag[type] = round[type]
+        end
+      end
+    end
+    return minimum_bag
+  end
+
+  local total = 0
+  for game_no, game in pairs(games) do
+    -- vim.print(game)
+    local minimum_bag = get_minimum_bag(game)
+    -- vim.print(minimum_bag)
+    total = total + minimum_bag["red"] * minimum_bag["green"] * minimum_bag["blue"]
+  end
+  print(total)
+end
+
+part_two()
