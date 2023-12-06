@@ -1001,21 +1001,75 @@ nkthree86b5fgzzfoneqn
 eightgndhmrfouronexldvdvqnzxqjczfk1
 ]]
 
-local total = 0
-for line in input:gmatch("[^\r\n]+") do
-  local first = nil
-  local last = nil
-  for char in line:gmatch(".") do
-    local num = tonumber(char)
-    if num then
-      if first == nil then
-        first = num
-        last = num
-      else
-        last = num
+local function part_one()
+  local total = 0
+  for line in input:gmatch("[^\r\n]+") do
+    local first = nil
+    local last = nil
+    for char in line:gmatch(".") do
+      local num = tonumber(char)
+      if num then
+        if first == nil then
+          first = num
+          last = num
+        else
+          last = num
+        end
       end
     end
+    total = total + tonumber(tostring(first) .. tostring(last))
   end
-  total = total + tonumber(tostring(first) .. tostring(last))
+  print(total)
 end
-print(total)
+
+-- part_one()
+
+local function part_two()
+  -- 360
+  zinput = [[
+sevenine
+two1nine
+eightwothree
+abcone2threexyz
+xtwone3four
+4nineeightseven2
+zoneight234
+7pqrstsixteen
+]]
+  local total = 0
+  -- avoids removing overlapping words, not my idea
+  local subs = {
+    one = "on1e",
+    two = "tw2o",
+    three = "thre3e",
+    four = "fou4r",
+    five = "fiv5e",
+    six = "si6x",
+    seven = "seve7n",
+    eight = "eigh8t",
+    nine = "nin9e",
+  }
+  for line in input:gmatch("[^\r\n]+") do
+    local first = nil
+    local last = nil
+
+    for key, value in pairs(subs) do
+      line = string.gsub(line, key, value)
+    end
+    for char in line:gmatch(".") do
+      local num = tonumber(char)
+      if num then
+        if first == nil then
+          first = num
+          last = num
+        else
+          last = num
+        end
+      end
+    end
+    total = total + tonumber(tostring(first) .. tostring(last))
+  end
+  print(total)
+end
+
+-- part_two()
