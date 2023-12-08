@@ -1,1 +1,3 @@
-autocmd BufWritePost \*.lua luafile %
+# Advent of Code
+
+<https://adventofcode.com/>
