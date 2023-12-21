@@ -1007,92 +1007,23 @@ let sample_input = '???.### 1,1,3
 ?###???????? 3,2,1'
 
 def part_one [txt] {
-  "----" | inspect
 
-  let data = $txt | lines 
+  let data = $txt | lines
     | split column " " 
-    | update column1 {|x| $x.column1 | split chars}
     | update column2 {|x| $x.column2 | split row , | into int}
     | rename cfg nums
 
-  def is_valid [cfg, nums] {
-    mut n = []
-    mut x = 0
-    mut c = 0
-
-    loop {
-      let ch = $cfg | get $x
-
-      if $ch == "#" {
-        $c = $c + 1
-      } else if $c != 0 {
-        $n = ($n | append $c)
-        $c = 0
-      }
-      $x = $x + 1
-      if $x == ($cfg | length) {
-        if $c != 0 {
-          $n = ($n | append $c)
-        }
-        break
-      }
+  def f [cfg, nums, i] {
+    if $i == ($cfg | str length) {
+      if ($cfg | parse -r "(#+)" | get capture0 | str length) == $nums {1} else {0}
+    } else if ($cfg | str substring $i..($i + 1)) == "?" {
+      (f $"($cfg | str substring ..$i)#($cfg | str substring ($i + 1)..)" $nums ($i + 1)) + (f $"($cfg | str substring ..$i).($cfg | str substring ($i + 1)..)" $nums ($i + 1))
+    } else {
+      f $cfg $nums ($i + 1)
     }
-
-    ($n == $nums)
   }
 
-  def get_combos [n] {
-    def generate [prefix, remaining, acc] {
-      if $remaining == 0 {
-        return ($acc | append $prefix)
-      }
-
-      return [(generate ($prefix | append ".") ($remaining - 1) $acc), (generate ($prefix | append "#") ($remaining - 1) $acc)]
-    }
-
-    mut result = generate [] $n []
-    mut x = 0
-    loop {
-      $result = ($result | flatten)
-      $x = $x + 1
-      if $x == ($n - 1) {
-        break
-      }
-    }
-    $result
-  }
-
-  def combinations [cfg, nums, done] {
-    let qns = $cfg | enumerate | reduce -f [] {|it, acc| if $it.item == "?" {$acc | append $it.index} else {$acc} }
-    let space = $cfg | length
-    let len = $qns | length
-    let combos = get_combos $len
-    mut result = 0
-    mut x = 0
-    loop {
-      let combo = $combos | get $x
-      mut c = $cfg
-      mut y = 0
-      loop {
-        $c = ($c | update ($qns | get $y) ($combo | get $y))
-        $y = $y + 1
-        if $y == $len {
-          break
-        }
-      }
-      if (is_valid $c $nums) {
-        $result = $result + 1
-      }
-      $x = $x + 1
-      if $x == ($combos | length) {
-        break
-      }
-    }
-    $"done ($done)" | inspect
-    $result
-  }
-
-  $data | get 2 | enumerate | reduce -f 0 {|it, acc| $acc + (combinations $it.item.cfg $it.item.nums $it.index) }
+  $data | enumerate | reduce -f 0 {|it, acc| print $"($it.index + 1) of ($data | length)"; $acc + (f $it.item.cfg $it.item.nums 0) }
 }
 
 part_one $sample_input
